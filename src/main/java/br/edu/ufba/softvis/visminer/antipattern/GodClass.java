@@ -20,7 +20,20 @@ import br.edu.ufba.softvis.visminer.metric.WMCMetric;
 						   			"and has grown beyond all logic to become The Class That Does Everything")
 public class GodClass implements IAntiPattern{
 	
-	//TODO colocar limiares no construtor, ex: ATFDThreshold
+	private int atfdThreshold = 40;
+	private int wmcThreshold = 75;
+	private float tccThreshold = 0.2f;
+	private int noaThreshold = 20;
+	
+	public GodClass(){};
+	public GodClass(int atfdThreshold, int wmcThreshold, float tccThreshold, int noaThreshold) {
+		this.atfdThreshold = atfdThreshold;
+		this.wmcThreshold = wmcThreshold;
+		this.tccThreshold = tccThreshold;
+		this.noaThreshold = noaThreshold;
+	}
+	
+	
 	
 	@Override
 	public void detect(AST ast, Document doc) {
@@ -58,7 +71,7 @@ public class GodClass implements IAntiPattern{
 		float tcc = tccMetric.calculate(methods);
 		int noa = noaMetric.calculate(ast);
 		
-		godClass = atfd > 40 && wmc > 75 || (tcc < 0.2 && noa > 20); 
+		godClass = atfd > atfdThreshold && wmc > wmcThreshold || (tcc < tccThreshold && noa > noaThreshold); 
 		
 		return godClass;
 	}
