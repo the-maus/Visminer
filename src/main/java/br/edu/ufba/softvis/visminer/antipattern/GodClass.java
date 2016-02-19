@@ -71,7 +71,7 @@ public class GodClass implements IAntiPattern{
 		float tcc = tccMetric.calculate(methods);
 		int noa = noaMetric.calculate(ast);
 		
-		godClass = atfd > atfdThreshold && wmc > wmcThreshold || (tcc < tccThreshold && noa > noaThreshold); 
+		godClass = (atfd > atfdThreshold) && ((wmc > wmcThreshold) || ((tcc < tccThreshold) && (noa > noaThreshold))); 
 		
 		return godClass;
 	}
