@@ -49,13 +49,13 @@ public class ASTProcessor {
 
 				doc.append("file", file.getUid()).append("type", typeDoc);
 				for (IMetric metric : metrics) {
-					metric.calculate(ast, doc);
+					metric.calculate(type, ast, doc);
 				}
 				
 				List<Document> antiPatternsDoc = new ArrayList<Document>();
-				for (IAntiPattern ap : antiPatterns) {
+				for (IAntiPattern antiPattern : antiPatterns) {
 					Document apDoc = new Document();
-					ap.detect(ast, apDoc);
+					antiPattern.detect(type, ast, apDoc);
 					antiPatternsDoc.add(apDoc);
 				}
 				doc.append("antipatterns", antiPatternsDoc);

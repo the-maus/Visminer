@@ -20,7 +20,7 @@ import br.edu.ufba.softvis.visminer.model.Repository;
 import br.edu.ufba.softvis.visminer.persistence.ASTProcessor;
 
 /**
- * Manages the metrics calculation
+ * Manages the metrics calculation and antipatterns detection
  */
 public class SourceAnalyzer {
 	private ASTProcessor astProcessor;
@@ -32,12 +32,12 @@ public class SourceAnalyzer {
 	/**
 	 * @param repository
 	 * @param metrics
+	 * @param antiPatterns
 	 * @param repoSys
 	 * @param languages
 	 */
-	
-	//TODO adicionar parametro: lista de antipatterns
-	public void analyze(Repository repository, List<IMetric> metrics, List<IAntiPattern> antiPatterns, SCM repoSys, List<LanguageType> languages) {
+	public void analyze(Repository repository, List<IMetric> metrics, List<IAntiPattern> antiPatterns, SCM repoSys,
+			List<LanguageType> languages) {
 		this.repoSys = repoSys;
 		this.astProcessor = new ASTProcessor(repository);
 
@@ -51,8 +51,7 @@ public class SourceAnalyzer {
 		}
 	}
 
-	
-	//TODO adicionar parametro lista de antipatterns
+	// TODO adicionar parametro lista de antipatterns
 	private void analyze(List<Commit> commits, List<IMetric> metrics, List<IAntiPattern> antiPatterns) {
 		int c = 1;
 		for (Commit commit : commits) {
@@ -78,7 +77,7 @@ public class SourceAnalyzer {
 		}
 	}
 
-	//TODO adicionar parametro lista de antipatterns
+	// TODO adicionar parametro lista de antipatterns
 	private void processAST(File file, String commitName, List<IMetric> metrics, List<IAntiPattern> antiPatterns) {
 		int index = file.getPath().lastIndexOf(".") + 1;
 		String ext = file.getPath().substring(index);
@@ -90,11 +89,12 @@ public class SourceAnalyzer {
 
 		try {
 			String source = repoSys.getSource(commitName, file.getPath());
-			AST ast = gen.generate(file.getPath(), source, sourceFolders.toArray(new String[sourceFolders.size()]));
-			astProcessor.process(file, ast, metrics, antiPatterns);
+			if ((source != null) && (!source.equals(""))) {
+				AST ast = gen.generate(file.getPath(), source, sourceFolders.toArray(new String[sourceFolders.size()]));
+				astProcessor.process(file, ast, metrics, antiPatterns);
+			}
 		} catch (Exception e) {
-			// TODO tratar no altonivel (segue ou para?)
-			System.out.println("Erro processando: " + file.getPath());
+			e.printStackTrace();
 		}
 	}
 

@@ -63,8 +63,7 @@ public class DBConfig {
 
 	public MongoClient configClient() {
 		ServerAddress server = new ServerAddress(host, port);
-		MongoCredential credential = MongoCredential.createCredential(user,
-				dbname, password.toCharArray());
+		MongoCredential credential = MongoCredential.createCredential(user, dbname, password.toCharArray());
 		MongoClient client = new MongoClient(server, Arrays.asList(credential));
 
 		return client;

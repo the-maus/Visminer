@@ -5,7 +5,9 @@ import java.util.List;
 import org.bson.Document;
 
 import br.edu.ufba.softvis.visminer.annotations.MetricAnnotation;
+import br.edu.ufba.softvis.visminer.ast.AST;
 import br.edu.ufba.softvis.visminer.ast.MethodDeclaration;
+import br.edu.ufba.softvis.visminer.ast.TypeDeclaration;
 
 @MetricAnnotation(
 		name = "Weighted Method Count",
@@ -15,7 +17,7 @@ import br.edu.ufba.softvis.visminer.ast.MethodDeclaration;
 public class WMCMetric extends MethodBasedMetricTemplate{
 
 	@Override
-	public void calculate(List<MethodDeclaration> methods, Document document) {
+	public void calculate(TypeDeclaration type, List<MethodDeclaration> methods, AST ast, Document document) {
 		int wmc = calculate(methods);
 
 		document.append("WMC", new Document("accumulated", new Integer(wmc)));
