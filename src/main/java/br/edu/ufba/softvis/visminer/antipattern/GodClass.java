@@ -58,8 +58,4 @@ public class GodClass implements IAntiPattern {
 
 		return godClass;
 	}
-	
-	//TODO select antipatterns godclass=true, arquivo e committ 
-	//godclass retriever no pacote br.edu.ufba.softvis.visminer.retriever
-	//AntipatternDAO e AntipatternDAOimpl findAll(antipattern true)
 }
