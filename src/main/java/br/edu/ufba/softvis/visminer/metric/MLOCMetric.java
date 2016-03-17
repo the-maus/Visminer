@@ -39,21 +39,16 @@ public class MLOCMetric extends MethodBasedMetricTemplate {
 	
 	public int calculate(MethodDeclaration method, AST ast){
 		String sourceCode = ast.getSourceCode();
-		
-		//preprocessing source code for correct use of indexOf function
-		sourceCode = sourceCode.replaceAll("\\s+(?=[^()]*\\))", "");
 				
-		int methodStartIndex = method.getStartIndex(sourceCode);
-		String methodSourceCode = sourceCode.substring(methodStartIndex, method.getEndPositionInSourceCode());
+		String methodSourceCode = sourceCode.substring(method.getStartPositionInSourceCode(), method.getEndPositionInSourceCode());
 
-//		methodSourceCode = method.getSourceCode(methodSourceCode);
-        
 		if(methodSourceCode == null || methodSourceCode.length() == 0)
 			return 0;
 
 		Matcher m = pattern.matcher(methodSourceCode);
 
-		int i = 0;
+		//starts from 1 because the matcher doesn't count the last line (only line breaks)
+		int i = 1;
 
 		while(m.find())
 			i++;
