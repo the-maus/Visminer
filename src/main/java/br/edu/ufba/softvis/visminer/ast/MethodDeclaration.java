@@ -183,5 +183,16 @@ public class MethodDeclaration {
 	public void setEndPositionInSourceCode(int endPositionInSourceCode) {
 		this.endPositionInSourceCode = endPositionInSourceCode;
 	}
+	
+	/**
+	 * @return the index of the first char after the opening brace
+	 */
+	public int getStartIndex(String sourceCode){
+		return sourceCode.indexOf(getName().replaceAll("\\s+",""))+getName().length()+1;
+	}
+	
+//	public int getLength(String sourceCode, int startIndex){
+//		
+//	}
 
 }

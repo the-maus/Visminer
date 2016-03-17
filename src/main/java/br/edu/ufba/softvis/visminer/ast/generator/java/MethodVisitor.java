@@ -131,6 +131,8 @@ public class MethodVisitor extends ASTVisitor {
 						String expression = variable.getDeclaringClass().getQualifiedName()+"."+variable.getName();
 						return addStatement(NodeType.FIELD_ACCESS, expression);
 					}	
+				}else if(!variable.isField() && !variable.isEnumConstant() && !variable.isParameter()){
+					return addStatement(NodeType.VARIABLE, variable.getName());
 				}
 			}
 		}
