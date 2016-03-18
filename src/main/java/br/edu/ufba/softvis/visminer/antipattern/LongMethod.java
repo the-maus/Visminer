@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bson.Document;
 
+import br.edu.ufba.softvis.visminer.annotations.AntiPatternAnnotation;
 import br.edu.ufba.softvis.visminer.ast.AST;
 import br.edu.ufba.softvis.visminer.ast.ClassOrInterfaceDeclaration;
 import br.edu.ufba.softvis.visminer.ast.MethodDeclaration;
@@ -15,6 +16,8 @@ import br.edu.ufba.softvis.visminer.metric.LVARMetric;
 import br.edu.ufba.softvis.visminer.metric.MLOCMetric;
 import br.edu.ufba.softvis.visminer.metric.PARMetric;
 
+@AntiPatternAnnotation(name = "Long Method", description = "A Long Method characterizes the methods of software that contains "
+		+ "many lines of code, as well as a lot of parameters and local variables, and a high cyclomatic complexity.")
 public class LongMethod implements IAntiPattern {
 
 	private List<Document> methodsDoc;
