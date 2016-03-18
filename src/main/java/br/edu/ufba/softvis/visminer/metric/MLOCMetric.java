@@ -45,6 +45,7 @@ public class MLOCMetric extends MethodBasedMetricTemplate {
 		if(methodSourceCode == null || methodSourceCode.length() == 0)
 			return 0;
 
+		//TODO ignore blank lines and comments
 		Matcher m = pattern.matcher(methodSourceCode);
 
 		//starts from 1 because the matcher doesn't count the last line (only line breaks)
