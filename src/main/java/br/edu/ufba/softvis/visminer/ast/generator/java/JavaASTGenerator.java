@@ -43,7 +43,9 @@ import br.edu.ufba.softvis.visminer.constant.LanguageType;
 public class JavaASTGenerator implements IASTGenerator{
 
 	public AST generate(String filePath, String source, String[] sourceFolders){
-
+		System.out.println(filePath);
+		System.out.println(source);
+		
 		Document document = new  Document();
 		document.setName(filePath);
 
@@ -189,6 +191,9 @@ public class JavaASTGenerator implements IASTGenerator{
 		MethodVisitor visitor = new MethodVisitor();
 		methodDecl.accept(visitor);
 		m.setStatements(visitor.getStatements());
+		m.setMaxNesting(visitor.getMaxNesting());
+		
+		System.out.println("Max nesting = " + m.getMaxNesting() + " [" + m.getName() + "]");
 
 		if(methodDecl.getReturnType2() != null)
 			m.setReturnType(methodDecl.getReturnType2().toString());

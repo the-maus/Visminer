@@ -30,7 +30,12 @@ import br.edu.ufba.softvis.visminer.constant.NodeType;
 public class MethodVisitor extends ASTVisitor {
 
 	private List<Statement> statements = new ArrayList<Statement>();
-	
+	private int maxNesting = 0;
+
+	public MethodVisitor() {
+		this.maxNesting = 0;
+	}
+
 	@Override
 	public boolean visit(BreakStatement node) {
 		return addStatement(NodeType.BREAK, null);
@@ -48,24 +53,30 @@ public class MethodVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(DoStatement node) {
+		calculateMaxNesting(node);
 		return addStatement(NodeType.DO_WHILE, node.getExpression().toString());
 	}
 
 	@Override
 	public boolean visit(EnhancedForStatement node) {
+		calculateMaxNesting(node);
 		return addStatement(NodeType.FOR, node.getExpression().toString());
 	}
 
 	@Override
 	public boolean visit(ForStatement node) {
+		calculateMaxNesting(node);
 		return addStatement(NodeType.FOR, node.getExpression().toString());
 	}
 
 	@Override
 	public boolean visit(IfStatement node) {
+		calculateMaxNesting(node);
 		addStatement(NodeType.IF, node.getExpression().toString());
-		if(node.getElseStatement() != null)
+		if (node.getElseStatement() != null) {
+			calculateMaxNesting(node.getElseStatement());
 			addStatement(NodeType.ELSE, null);
+		}
 		return true;
 	}
 
@@ -76,11 +87,12 @@ public class MethodVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if(node.isDefault())
+		calculateMaxNesting(node);
+		if (node.isDefault())
 			return addStatement(NodeType.SWITCH_DEFAULT, null);
 		else
 			return addStatement(NodeType.SWITCH_CASE, node.getExpression().toString());
-			
+
 	}
 
 	@Override
@@ -90,49 +102,52 @@ public class MethodVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(TryStatement node) {
+		calculateMaxNesting(node);
 		addStatement(NodeType.TRY, null);
-		if(node.getFinally() != null)
+		if (node.getFinally() != null) {
+			calculateMaxNesting(node.getFinally());
 			addStatement(NodeType.FINALLY, null);
+		}
 		return true;
 	}
 
 	@Override
 	public boolean visit(WhileStatement node) {
+		calculateMaxNesting(node);
 		return addStatement(NodeType.WHILE, node.getExpression().toString());
 	}
 
 	@Override
 	public boolean visit(ExpressionStatement node) {
-		if(node.getNodeType() == ASTNode.CONDITIONAL_EXPRESSION)
+		if (node.getNodeType() == ASTNode.CONDITIONAL_EXPRESSION)
 			return addStatement(NodeType.CONDITIONAL_EXPRESSION, node.getExpression().toString());
 		return true;
 	}
-	
+
 	@Override
 	public boolean visit(MethodInvocation node) {
-		if(node.resolveMethodBinding()!=null){
-			ITypeBinding type=node.resolveMethodBinding().getDeclaringClass();
-			if(type.isFromSource()){
-				String expression = type.getQualifiedName()+"."+node.resolveMethodBinding().getName();
+		if (node.resolveMethodBinding() != null) {
+			ITypeBinding type = node.resolveMethodBinding().getDeclaringClass();
+			if (type.isFromSource()) {
+				String expression = type.getQualifiedName() + "." + node.resolveMethodBinding().getName();
 				return addStatement(NodeType.METHOD_INVOCATION, expression);
 			}
 		}
-		return true;		
+		return true;
 	}
-	
-	
+
 	@Override
 	public boolean visit(SimpleName node) {
-		boolean addStatement=true;
-		if(node.resolveBinding()!=null){
-			if(node.resolveBinding().getKind()==IBinding.VARIABLE){
-				IVariableBinding variable = (IVariableBinding)node.resolveBinding();
-				if(variable.getDeclaringClass()!=null){
-					if(variable.isField() && variable.getDeclaringClass().isFromSource()){
-						String expression = variable.getDeclaringClass().getQualifiedName()+"."+variable.getName();
+		boolean addStatement = true;
+		if (node.resolveBinding() != null) {
+			if (node.resolveBinding().getKind() == IBinding.VARIABLE) {
+				IVariableBinding variable = (IVariableBinding) node.resolveBinding();
+				if (variable.getDeclaringClass() != null) {
+					if (variable.isField() && variable.getDeclaringClass().isFromSource()) {
+						String expression = variable.getDeclaringClass().getQualifiedName() + "." + variable.getName();
 						addStatement = addStatement(NodeType.FIELD_ACCESS, expression);
-					}	
-				}else if(!variable.isField() && !variable.isEnumConstant() && !variable.isParameter()){
+					}
+				} else if (!variable.isField() && !variable.isEnumConstant() && !variable.isParameter()) {
 					addStatement = addStatement(NodeType.VARIABLE, variable.getName());
 				}
 				addStatement(NodeType.VARIABLE_ACCESS, variable.getName());
@@ -144,13 +159,38 @@ public class MethodVisitor extends ASTVisitor {
 	public List<Statement> getStatements() {
 		return statements;
 	}
-	
-	private boolean addStatement(NodeType type, String expression){
+
+	public int getMaxNesting() {
+		return maxNesting;
+	}
+
+	private boolean addStatement(NodeType type, String expression) {
 		Statement stmt = new Statement();
 		stmt.setNodeType(type);
 		stmt.setExpression(expression);
 		statements.add(stmt);
 		return true;
 	}
-	
+
+	private boolean okToNextNestingLevel(ASTNode node) {
+		return ((node.getNodeType() == ASTNode.DO_STATEMENT) || (node.getNodeType() == ASTNode.FOR_STATEMENT)
+				|| (node.getNodeType() == ASTNode.ENHANCED_FOR_STATEMENT)
+				|| (node.getNodeType() == ASTNode.IF_STATEMENT) || (node.getNodeType() == ASTNode.SWITCH_CASE)
+				|| (node.getNodeType() == ASTNode.SWITCH_STATEMENT) || (node.getNodeType() == ASTNode.TRY_STATEMENT)
+				|| (node.getNodeType() == ASTNode.WHILE_STATEMENT) || (node.getNodeType() == ASTNode.CATCH_CLAUSE));
+	}
+
+	private void calculateMaxNesting(ASTNode node) {
+		int nesting = 1;
+		while ((node.getParent() != null) && (okToNextNestingLevel(node.getParent()))) {
+			nesting++;
+
+			node = node.getParent();
+		}
+
+		if (nesting > maxNesting) {
+			maxNesting = nesting;
+		}
+	}
+
 }
