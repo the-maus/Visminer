@@ -36,25 +36,25 @@ public class GodClass implements IAntiPattern {
 		if (type.getType() == SoftwareUnitType.CLASS_OR_INTERFACE) {
 			ClassOrInterfaceDeclaration cls = (ClassOrInterfaceDeclaration) type;
 
-			ATFDMetric atfdMetric = new ATFDMetric();
-			WMCMetric wmcMetric = new WMCMetric();
-			TCCMetric tccMetric = new TCCMetric();
-			NOAMetric noaMetric = new NOAMetric();
-
-			int atfd = atfdMetric.calculate(type, cls.getMethods(), false);
-			float tcc = tccMetric.calculate(type, cls.getMethods());
-			int wmc = wmcMetric.calculate(cls.getMethods());
-			int noa = noaMetric.calculate(cls.getFields());
-
-			boolean godClass = (atfd > atfdThreshold)
-					&& ((wmc > wmcThreshold) || ((tcc < tccThreshold) && (noa > noaThreshold)));
-
+			boolean godClass = detect(type, cls);
 			document.append("name", new String("God Class")).append("value", new Boolean(godClass));
 		}
 	}
 
-	public boolean detect(Document document) {
+	public boolean detect(TypeDeclaration type, ClassOrInterfaceDeclaration cls) {
 		boolean godClass = false;
+		
+		ATFDMetric atfdMetric = new ATFDMetric();
+		WMCMetric wmcMetric = new WMCMetric();
+		TCCMetric tccMetric = new TCCMetric();
+		NOAMetric noaMetric = new NOAMetric();
+
+		int atfd = atfdMetric.calculate(type, cls.getMethods(), false);
+		float tcc = tccMetric.calculate(type, cls.getMethods());
+		int wmc = wmcMetric.calculate(cls.getMethods());
+		int noa = noaMetric.calculate(cls.getFields());
+
+		godClass = (atfd > atfdThreshold) && ((wmc > wmcThreshold) || ((tcc < tccThreshold) && (noa > noaThreshold)));
 
 		return godClass;
 	}

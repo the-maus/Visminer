@@ -13,6 +13,7 @@ import br.edu.ufba.softvis.visminer.ast.TypeDeclaration;
 import br.edu.ufba.softvis.visminer.constant.SoftwareUnitType;
 import br.edu.ufba.softvis.visminer.metric.CCMetric;
 import br.edu.ufba.softvis.visminer.metric.MLOCMetric;
+import br.edu.ufba.softvis.visminer.metric.MaxNestingMetric;
 import br.edu.ufba.softvis.visminer.metric.NOAVMetric;
 
 @AntiPatternAnnotation(name = "Brain Method", description = "A Brain Method tends to centralize the functionality of a class.")
@@ -55,11 +56,12 @@ public class BrainMethod implements IAntiPattern {
 		MLOCMetric mlocMetric = new MLOCMetric();
 		CCMetric ccMetric = new CCMetric();
 		NOAVMetric noavMetric = new NOAVMetric();
+		MaxNestingMetric maxNestingMetric = new MaxNestingMetric();
 		
 		int cc = ccMetric.calculate(method);
 		int mloc = mlocMetric.calculate(method, ast);
 		int noav = noavMetric.calculate(method);
-		int maxNesting = 7; //TODO implement max nesting level calculation
+		int maxNesting = maxNestingMetric.calculate(method);
 		
 		brainMethod = (mloc>mlocThreshold) && (cc/mloc >= ccMlocThreshold) && (maxNesting >= maxNestingThreshold && noav > noavThreshold);
 		
