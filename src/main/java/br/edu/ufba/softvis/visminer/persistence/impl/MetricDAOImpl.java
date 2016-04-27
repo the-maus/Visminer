@@ -19,5 +19,10 @@ public class MetricDAOImpl implements MetricDAO {
 	public List<IMetric> findByFile(String uid) {
 		return null;
 	}
+	
+	@Override
+	public void savePackageMetric(Document document) {
+		Database.getInstance().insert("packages", document);
+	}
 
 }

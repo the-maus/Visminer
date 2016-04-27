@@ -2,22 +2,30 @@ package br.edu.ufba.softvis.visminer.analyzer;
 
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import org.bson.Document;
 
 import br.edu.ufba.softvis.visminer.analyzer.scm.SCM;
 import br.edu.ufba.softvis.visminer.annotations.ASTGeneratorAnnotation;
 import br.edu.ufba.softvis.visminer.antipattern.IAntiPattern;
 import br.edu.ufba.softvis.visminer.ast.AST;
+import br.edu.ufba.softvis.visminer.ast.PackageDeclaration;
 import br.edu.ufba.softvis.visminer.ast.generator.ASTGeneratorFactory;
 import br.edu.ufba.softvis.visminer.ast.generator.IASTGenerator;
 import br.edu.ufba.softvis.visminer.constant.LanguageType;
 import br.edu.ufba.softvis.visminer.metric.IMetric;
+import br.edu.ufba.softvis.visminer.metric.PackageBasedMetricTemplate;
 import br.edu.ufba.softvis.visminer.model.Commit;
 import br.edu.ufba.softvis.visminer.model.File;
 import br.edu.ufba.softvis.visminer.model.Repository;
 import br.edu.ufba.softvis.visminer.persistence.ASTProcessor;
+import br.edu.ufba.softvis.visminer.persistence.dao.MetricDAO;
+import br.edu.ufba.softvis.visminer.persistence.impl.MetricDAOImpl;
 
 /**
  * Manages the metrics calculation and antipatterns detection
@@ -28,6 +36,8 @@ public class SourceAnalyzer {
 
 	private List<String> sourceFolders;
 	private Map<String, IASTGenerator> astGenerators;
+	
+	private List<AST> astList;
 
 	/**
 	 * @param repository
@@ -51,17 +61,23 @@ public class SourceAnalyzer {
 		}
 	}
 
-	// TODO adicionar parametro lista de antipatterns
 	private void analyze(List<Commit> commits, List<IMetric> metrics, List<IAntiPattern> antiPatterns) {
 		int c = 1;
 		for (Commit commit : commits) {
 			System.out.println(c + " de " + commits.size());
 			c++;
 
+			astList = new ArrayList<AST>();
+
 			repoSys.checkout(commit.getName());
 			for (File file : commit.getCommitedFiles()) {
 				processAST(file, commit.getName(), metrics, antiPatterns);
 			}
+			
+			if(!astList.isEmpty()){
+				processPackages(astList, metrics, commit.getName(), antiPatterns);
+			}
+			
 		}
 	}
 
@@ -77,7 +93,6 @@ public class SourceAnalyzer {
 		}
 	}
 
-	// TODO adicionar parametro lista de antipatterns
 	private void processAST(File file, String commitName, List<IMetric> metrics, List<IAntiPattern> antiPatterns) {
 		int index = file.getPath().lastIndexOf(".") + 1;
 		String ext = file.getPath().substring(index);
@@ -92,10 +107,57 @@ public class SourceAnalyzer {
 			if ((source != null) && (!source.equals(""))) {
 				AST ast = gen.generate(file.getPath(), source, sourceFolders.toArray(new String[sourceFolders.size()]));
 				astProcessor.process(file, ast, metrics, antiPatterns);
+				astList.add(ast);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+	}
+	
+	private void processPackages(List<AST> astList, List<IMetric> metrics, String commitName, List<IAntiPattern> antiPatterns){
+		MetricDAO dao = new MetricDAOImpl();
+		
+		List<PackageDeclaration> packages = getPackages(astList, commitName);
+		
+		for(PackageDeclaration packageDeclaration : packages){
+			Document doc = new Document();
+			doc.append("commit", commitName);
+			doc.append("name", packageDeclaration.getName());
+
+			for(IMetric metric : metrics){
+				if(metric instanceof PackageBasedMetricTemplate){
+					PackageBasedMetricTemplate packageMetric = (PackageBasedMetricTemplate) metric;
+					
+					packageMetric.calculate(packageDeclaration, doc);
+				}
+			}
+			
+			dao.savePackageMetric(doc);
+		}
+	}
+	
+	private List<PackageDeclaration> getPackages(List<AST> astList, String commitName){
+		List<PackageDeclaration> packages = new ArrayList<PackageDeclaration>();
+		Map<String, List<AST>> packageMap = new HashMap<String, List<AST>>();
+		
+		for(AST ast: astList){
+			String packageName = ast.getDocument().getPackageDeclaration().getName();
+			
+			if(packageMap.containsKey(packageName))
+				packageMap.get(packageName).add(ast);
+			else{
+				List<AST> newASTList = new ArrayList<AST>();
+				newASTList.add(ast);
+				packageMap.put(packageName, newASTList);
+			}
+		}
+		
+		for(Entry<String, List<AST>> entry : packageMap.entrySet()){
+			packages.add(new PackageDeclaration(entry.getKey(), entry.getValue(), commitName));
+		}
+		
+		return packages;
 	}
 
 	private void getSourceFolders(String repoPath) {
