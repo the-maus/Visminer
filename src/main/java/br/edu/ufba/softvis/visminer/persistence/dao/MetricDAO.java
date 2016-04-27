@@ -10,7 +10,7 @@ public interface MetricDAO {
 
 	public void save(Document document);
 	
-	public void savePackageMetric(Document document);
+	public void saveProjectMetric(Document document);
 	
 	public List<IMetric> findByFile(String uid);
 	

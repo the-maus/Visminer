@@ -11,5 +11,5 @@ import br.edu.ufba.softvis.visminer.ast.TypeDeclaration;
 public interface IMetric {
 
 	public void calculate(TypeDeclaration type, AST ast, Document document);
-
+	
 }

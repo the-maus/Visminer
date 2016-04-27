@@ -1,5 +1,8 @@
 package br.edu.ufba.softvis.visminer.metric;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bson.Document;
 
 import br.edu.ufba.softvis.visminer.annotations.MetricAnnotation;
@@ -10,13 +13,28 @@ import br.edu.ufba.softvis.visminer.constant.SoftwareUnitType;
 
 @MetricAnnotation(name = "Number of Classes and Interfaces", description = "Number of Classes and Interfaces is a software metric used to measure "
 				  + "the size of a computer program  by counting the concrete and abstract classes", acronym = "NOCAI")
-public class NOCAIMetric extends PackageBasedMetricTemplate {
+public class NOCAIMetric extends ProjectBasedMetricTemplate {
+	
+	private List<Document> packagesDoc;
 	
 	@Override
-	public void calculate(PackageDeclaration packageDeclaration, Document document) {
-		int nocai = calculate(packageDeclaration);
-		document.append("NOCAI", new Document("value", new Integer(nocai)));
+	public void calculate(List<PackageDeclaration> packages, Document document) {
 		
+		packagesDoc = new ArrayList<Document>();
+		
+		int nocai = calculate(packages);
+		document.append("NOCAI", new Document("value", new Integer(nocai)).append("packages", packagesDoc));
+		
+	}
+	
+	public int calculate(List<PackageDeclaration> packages){
+		
+		int nocai = 0;
+		for(PackageDeclaration packageDeclaration : packages){
+			nocai += calculate(packageDeclaration);
+		}
+		
+		return nocai;
 	}
 	
 	public int calculate(PackageDeclaration packageDeclaration){
@@ -27,6 +45,8 @@ public class NOCAIMetric extends PackageBasedMetricTemplate {
 					nocai += ast.getDocument().getTypes().size();
 			}
 		}
+		
+		packagesDoc.add(new Document("package", packageDeclaration.getName()).append("value", new Integer(nocai)));
 		
 		return nocai;
 	}

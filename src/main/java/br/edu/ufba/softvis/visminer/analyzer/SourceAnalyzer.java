@@ -19,7 +19,7 @@ import br.edu.ufba.softvis.visminer.ast.generator.ASTGeneratorFactory;
 import br.edu.ufba.softvis.visminer.ast.generator.IASTGenerator;
 import br.edu.ufba.softvis.visminer.constant.LanguageType;
 import br.edu.ufba.softvis.visminer.metric.IMetric;
-import br.edu.ufba.softvis.visminer.metric.PackageBasedMetricTemplate;
+import br.edu.ufba.softvis.visminer.metric.ProjectBasedMetricTemplate;
 import br.edu.ufba.softvis.visminer.model.Commit;
 import br.edu.ufba.softvis.visminer.model.File;
 import br.edu.ufba.softvis.visminer.model.Repository;
@@ -75,7 +75,7 @@ public class SourceAnalyzer {
 			}
 			
 			if(!astList.isEmpty()){
-				processPackages(astList, metrics, commit.getName(), antiPatterns);
+				processProject(astList, metrics, commit.getName(), antiPatterns, commit.getRepository().getName());
 			}
 			
 		}
@@ -115,26 +115,24 @@ public class SourceAnalyzer {
 		
 	}
 	
-	private void processPackages(List<AST> astList, List<IMetric> metrics, String commitName, List<IAntiPattern> antiPatterns){
+	private void processProject(List<AST> astList, List<IMetric> metrics, String commitName, List<IAntiPattern> antiPatterns, String projectName){
 		MetricDAO dao = new MetricDAOImpl();
 		
 		List<PackageDeclaration> packages = getPackages(astList, commitName);
 		
-		for(PackageDeclaration packageDeclaration : packages){
-			Document doc = new Document();
-			doc.append("commit", commitName);
-			doc.append("name", packageDeclaration.getName());
+		Document doc = new Document();
+		doc.append("commit", commitName);
+		doc.append("name", projectName);
 
-			for(IMetric metric : metrics){
-				if(metric instanceof PackageBasedMetricTemplate){
-					PackageBasedMetricTemplate packageMetric = (PackageBasedMetricTemplate) metric;
-					
-					packageMetric.calculate(packageDeclaration, doc);
-				}
+		for(IMetric metric : metrics){
+			if(metric instanceof ProjectBasedMetricTemplate){
+				ProjectBasedMetricTemplate projectMetric = (ProjectBasedMetricTemplate) metric;
+				projectMetric.calculate(packages, doc);
 			}
-			
-			dao.savePackageMetric(doc);
 		}
+		
+		dao.saveProjectMetric(doc);
+		
 	}
 	
 	private List<PackageDeclaration> getPackages(List<AST> astList, String commitName){

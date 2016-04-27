@@ -21,8 +21,8 @@ public class MetricDAOImpl implements MetricDAO {
 	}
 	
 	@Override
-	public void savePackageMetric(Document document) {
-		Database.getInstance().insert("packages", document);
+	public void saveProjectMetric(Document document) {
+		Database.getInstance().insert("projects", document);
 	}
 
 }
