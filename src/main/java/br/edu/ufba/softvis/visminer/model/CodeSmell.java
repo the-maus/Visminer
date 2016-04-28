@@ -3,13 +3,13 @@ package br.edu.ufba.softvis.visminer.model;
 /**
  * User friendly commit bean class. This class will be used for user interface.
  */
-public class AntiPattern {
+public class CodeSmell {
 	
 	private File file;
 	private Commit commit;
 	private Committer committer;
 	
-	public AntiPattern(File file, Commit commit, Committer committer) {
+	public CodeSmell(File file, Commit commit, Committer committer) {
 		this.file = file;
 		this.commit = commit;
 		this.committer = committer;

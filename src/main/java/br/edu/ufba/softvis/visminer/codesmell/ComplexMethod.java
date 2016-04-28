@@ -1,11 +1,11 @@
-package br.edu.ufba.softvis.visminer.antipattern;
+package br.edu.ufba.softvis.visminer.codesmell;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.Document;
 
-import br.edu.ufba.softvis.visminer.annotations.AntiPatternAnnotation;
+import br.edu.ufba.softvis.visminer.annotations.CodeSmellAnnotation;
 import br.edu.ufba.softvis.visminer.ast.AST;
 import br.edu.ufba.softvis.visminer.ast.ClassOrInterfaceDeclaration;
 import br.edu.ufba.softvis.visminer.ast.MethodDeclaration;
@@ -13,8 +13,8 @@ import br.edu.ufba.softvis.visminer.ast.TypeDeclaration;
 import br.edu.ufba.softvis.visminer.constant.SoftwareUnitType;
 import br.edu.ufba.softvis.visminer.metric.CCMetric;
 
-@AntiPatternAnnotation(name = "Complex Method", description = "A Complex Method is a method that has a high Ciclomatic Complexity.")
-public class ComplexMethod implements IAntiPattern {
+@CodeSmellAnnotation(name = "Complex Method", description = "A Complex Method is a method that has a high Ciclomatic Complexity.")
+public class ComplexMethod implements ICodeSmell {
 	
 	private List<Document> methodsDoc;
 	private int ccThreshold = 4;

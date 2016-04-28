@@ -1,8 +1,8 @@
-package br.edu.ufba.softvis.visminer.antipattern;
+package br.edu.ufba.softvis.visminer.codesmell;
 
 import org.bson.Document;
 
-import br.edu.ufba.softvis.visminer.annotations.AntiPatternAnnotation;
+import br.edu.ufba.softvis.visminer.annotations.CodeSmellAnnotation;
 import br.edu.ufba.softvis.visminer.ast.AST;
 import br.edu.ufba.softvis.visminer.ast.ClassOrInterfaceDeclaration;
 import br.edu.ufba.softvis.visminer.ast.TypeDeclaration;
@@ -12,23 +12,25 @@ import br.edu.ufba.softvis.visminer.metric.NOAMetric;
 import br.edu.ufba.softvis.visminer.metric.TCCMetric;
 import br.edu.ufba.softvis.visminer.metric.WMCMetric;
 
-@AntiPatternAnnotation(name = "God Class", description = "A God Class is an object that controls way too many other objects in the system "
+@CodeSmellAnnotation(name = "God Class", description = "A God Class is an object that controls way too many other objects in the system "
 		+ "and has grown beyond all logic to become The Class That Does Everything")
-public class GodClass implements IAntiPattern {
+public class GodClass implements ICodeSmell {
 
 	private int atfdThreshold = 40;
 	private int wmcThreshold = 75;
 	private float tccThreshold = 0.2f;
 	private int noaThreshold = 20;
+	private boolean useNoa = false;
 
 	public GodClass() {
 	};
 
-	public GodClass(int atfdThreshold, int wmcThreshold, float tccThreshold, int noaThreshold) {
+	public GodClass(int atfdThreshold, int wmcThreshold, float tccThreshold, int noaThreshold, boolean useNoa) {
 		this.atfdThreshold = atfdThreshold;
 		this.wmcThreshold = wmcThreshold;
 		this.tccThreshold = tccThreshold;
 		this.noaThreshold = noaThreshold;
+		this.useNoa = useNoa;
 	}
 
 	@Override
@@ -54,8 +56,11 @@ public class GodClass implements IAntiPattern {
 		int wmc = wmcMetric.calculate(cls.getMethods());
 		int noa = noaMetric.calculate(cls.getFields());
 
-		godClass = (atfd > atfdThreshold) && ((wmc > wmcThreshold) || ((tcc < tccThreshold) && (noa > noaThreshold)));
-
+		if(useNoa)
+			godClass = (atfd > atfdThreshold) && ((wmc > wmcThreshold) || ((tcc < tccThreshold) && (noa > noaThreshold)));
+		else
+			godClass = (atfd > atfdThreshold) && ((wmc > wmcThreshold) || ((tcc < tccThreshold)));
+		
 		return godClass;
 	}
 }

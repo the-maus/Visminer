@@ -1,8 +1,8 @@
-package br.edu.ufba.softvis.visminer.antipattern;
+package br.edu.ufba.softvis.visminer.codesmell;
 
 import org.bson.Document;
 
-import br.edu.ufba.softvis.visminer.annotations.AntiPatternAnnotation;
+import br.edu.ufba.softvis.visminer.annotations.CodeSmellAnnotation;
 import br.edu.ufba.softvis.visminer.ast.AST;
 import br.edu.ufba.softvis.visminer.ast.ClassOrInterfaceDeclaration;
 import br.edu.ufba.softvis.visminer.ast.MethodDeclaration;
@@ -12,9 +12,9 @@ import br.edu.ufba.softvis.visminer.metric.SLOCMetric;
 import br.edu.ufba.softvis.visminer.metric.TCCMetric;
 import br.edu.ufba.softvis.visminer.metric.WMCMetric;
 
-@AntiPatternAnnotation(name = "Brain Class", description = "A Brain Class is a class that tends to be complex and centralize the functionality of the system. "
+@CodeSmellAnnotation(name = "Brain Class", description = "A Brain Class is a class that tends to be complex and centralize the functionality of the system. "
 						+ "Contrary to God Classes, Brain Classes do not use much data from foreign classes and are slightly more cohesive")
-public class BrainClass implements IAntiPattern {
+public class BrainClass implements ICodeSmell {
 
 	@Override
 	public void detect(TypeDeclaration type, AST ast, Document document) {

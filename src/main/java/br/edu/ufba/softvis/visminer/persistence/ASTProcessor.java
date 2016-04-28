@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.bson.Document;
 
-import br.edu.ufba.softvis.visminer.antipattern.IAntiPattern;
 import br.edu.ufba.softvis.visminer.ast.AST;
 import br.edu.ufba.softvis.visminer.ast.TypeDeclaration;
+import br.edu.ufba.softvis.visminer.codesmell.ICodeSmell;
 import br.edu.ufba.softvis.visminer.metric.IMetric;
 import br.edu.ufba.softvis.visminer.model.File;
 import br.edu.ufba.softvis.visminer.model.Repository;
@@ -34,7 +34,7 @@ public class ASTProcessor {
 	}
 
 
-	public void process(File file, AST ast, List<IMetric> metrics, List<IAntiPattern> antiPatterns) {
+	public void process(File file, AST ast, List<IMetric> metrics, List<ICodeSmell> codeSmells) {
 		MetricDAO dao = new MetricDAOImpl();
 		Document doc = new Document();
 
@@ -52,13 +52,13 @@ public class ASTProcessor {
 					metric.calculate(type, ast, doc);
 				}
 				
-				List<Document> antiPatternsDoc = new ArrayList<Document>();
-				for (IAntiPattern antiPattern : antiPatterns) {
+				List<Document> codeSmellsDoc = new ArrayList<Document>();
+				for (ICodeSmell codeSmell : codeSmells) {
 					Document apDoc = new Document();
-					antiPattern.detect(type, ast, apDoc);
-					antiPatternsDoc.add(apDoc);
+					codeSmell.detect(type, ast, apDoc);
+					codeSmellsDoc.add(apDoc);
 				}
-				doc.append("antipatterns", antiPatternsDoc);
+				doc.append("codesmells", codeSmellsDoc);
 			}
 
 			dao.save(doc);

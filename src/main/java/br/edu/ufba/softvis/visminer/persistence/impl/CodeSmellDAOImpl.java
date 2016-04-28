@@ -8,19 +8,19 @@ import com.mongodb.Block;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
-import br.edu.ufba.softvis.visminer.model.AntiPattern;
+import br.edu.ufba.softvis.visminer.model.CodeSmell;
 import br.edu.ufba.softvis.visminer.persistence.Database;
-import br.edu.ufba.softvis.visminer.persistence.dao.AntiPatternDAO;
+import br.edu.ufba.softvis.visminer.persistence.dao.CodeSmellDAO;
 
-public class AntiPatternDAOImpl implements AntiPatternDAO {
+public class CodeSmellDAOImpl implements CodeSmellDAO {
 
 	@Override
-	public List<AntiPattern> findAll() {
+	public List<CodeSmell> findAll() {
 
 		MongoCollection<Document> coll =  Database.getInstance().getDbCollection("types");
 		
 		//{ "antipatterns.value": true}
-		FindIterable<Document> iterable = coll.find(new Document("antipatterns.value", true));
+		FindIterable<Document> iterable = coll.find(new Document("codesmells.value", true));
 		
 		iterable.forEach(new Block<Document>() {
 			

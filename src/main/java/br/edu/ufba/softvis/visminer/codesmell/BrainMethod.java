@@ -1,11 +1,11 @@
-package br.edu.ufba.softvis.visminer.antipattern;
+package br.edu.ufba.softvis.visminer.codesmell;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.Document;
 
-import br.edu.ufba.softvis.visminer.annotations.AntiPatternAnnotation;
+import br.edu.ufba.softvis.visminer.annotations.CodeSmellAnnotation;
 import br.edu.ufba.softvis.visminer.ast.AST;
 import br.edu.ufba.softvis.visminer.ast.ClassOrInterfaceDeclaration;
 import br.edu.ufba.softvis.visminer.ast.MethodDeclaration;
@@ -16,8 +16,8 @@ import br.edu.ufba.softvis.visminer.metric.MLOCMetric;
 import br.edu.ufba.softvis.visminer.metric.MaxNestingMetric;
 import br.edu.ufba.softvis.visminer.metric.NOAVMetric;
 
-@AntiPatternAnnotation(name = "Brain Method", description = "A Brain Method tends to centralize the functionality of a class.")
-public class BrainMethod implements IAntiPattern {
+@CodeSmellAnnotation(name = "Brain Method", description = "A Brain Method tends to centralize the functionality of a class.")
+public class BrainMethod implements ICodeSmell {
 	
 	private List<Document> methodsDoc;
 	private int mlocThreshold = 65;

@@ -12,11 +12,11 @@ import org.bson.Document;
 
 import br.edu.ufba.softvis.visminer.analyzer.scm.SCM;
 import br.edu.ufba.softvis.visminer.annotations.ASTGeneratorAnnotation;
-import br.edu.ufba.softvis.visminer.antipattern.IAntiPattern;
 import br.edu.ufba.softvis.visminer.ast.AST;
 import br.edu.ufba.softvis.visminer.ast.PackageDeclaration;
 import br.edu.ufba.softvis.visminer.ast.generator.ASTGeneratorFactory;
 import br.edu.ufba.softvis.visminer.ast.generator.IASTGenerator;
+import br.edu.ufba.softvis.visminer.codesmell.ICodeSmell;
 import br.edu.ufba.softvis.visminer.constant.LanguageType;
 import br.edu.ufba.softvis.visminer.metric.IMetric;
 import br.edu.ufba.softvis.visminer.metric.ProjectBasedMetricTemplate;
@@ -28,7 +28,7 @@ import br.edu.ufba.softvis.visminer.persistence.dao.MetricDAO;
 import br.edu.ufba.softvis.visminer.persistence.impl.MetricDAOImpl;
 
 /**
- * Manages the metrics calculation and antipatterns detection
+ * Manages the metrics calculation and code smells detection
  */
 public class SourceAnalyzer {
 	private ASTProcessor astProcessor;
@@ -42,11 +42,11 @@ public class SourceAnalyzer {
 	/**
 	 * @param repository
 	 * @param metrics
-	 * @param antiPatterns
+	 * @param codeSmells
 	 * @param repoSys
 	 * @param languages
 	 */
-	public void analyze(Repository repository, List<IMetric> metrics, List<IAntiPattern> antiPatterns, SCM repoSys,
+	public void analyze(Repository repository, List<IMetric> metrics, List<ICodeSmell> codeSmells, SCM repoSys,
 			List<LanguageType> languages) {
 		this.repoSys = repoSys;
 		this.astProcessor = new ASTProcessor(repository);
@@ -57,11 +57,11 @@ public class SourceAnalyzer {
 
 		List<Commit> commits = repository.getCommits();
 		if (commits != null) {
-			analyze(commits, metrics, antiPatterns);
+			analyze(commits, metrics, codeSmells);
 		}
 	}
 
-	private void analyze(List<Commit> commits, List<IMetric> metrics, List<IAntiPattern> antiPatterns) {
+	private void analyze(List<Commit> commits, List<IMetric> metrics, List<ICodeSmell> codeSmells) {
 		int c = 1;
 		for (Commit commit : commits) {
 			System.out.println(c + " de " + commits.size());
@@ -71,11 +71,11 @@ public class SourceAnalyzer {
 
 			repoSys.checkout(commit.getName());
 			for (File file : commit.getCommitedFiles()) {
-				processAST(file, commit.getName(), metrics, antiPatterns);
+				processAST(file, commit.getName(), metrics, codeSmells);
 			}
 			
 			if(!astList.isEmpty()){
-				processProject(astList, metrics, commit.getName(), antiPatterns, commit.getRepository().getName());
+				processProject(astList, metrics, commit.getName(), codeSmells, commit.getRepository().getName());
 			}
 			
 		}
@@ -93,7 +93,7 @@ public class SourceAnalyzer {
 		}
 	}
 
-	private void processAST(File file, String commitName, List<IMetric> metrics, List<IAntiPattern> antiPatterns) {
+	private void processAST(File file, String commitName, List<IMetric> metrics, List<ICodeSmell> codeSmells) {
 		int index = file.getPath().lastIndexOf(".") + 1;
 		String ext = file.getPath().substring(index);
 
@@ -106,7 +106,7 @@ public class SourceAnalyzer {
 			String source = repoSys.getSource(commitName, file.getPath());
 			if ((source != null) && (!source.equals(""))) {
 				AST ast = gen.generate(file.getPath(), source, sourceFolders.toArray(new String[sourceFolders.size()]));
-				astProcessor.process(file, ast, metrics, antiPatterns);
+				astProcessor.process(file, ast, metrics, codeSmells);
 				astList.add(ast);
 			}
 		} catch (Exception e) {
@@ -115,7 +115,7 @@ public class SourceAnalyzer {
 		
 	}
 	
-	private void processProject(List<AST> astList, List<IMetric> metrics, String commitName, List<IAntiPattern> antiPatterns, String projectName){
+	private void processProject(List<AST> astList, List<IMetric> metrics, String commitName, List<ICodeSmell> codeSmells, String projectName){
 		MetricDAO dao = new MetricDAOImpl();
 		
 		List<PackageDeclaration> packages = getPackages(astList, commitName);

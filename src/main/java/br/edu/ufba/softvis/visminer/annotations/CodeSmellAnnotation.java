@@ -7,15 +7,15 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface AntiPatternAnnotation {
+public @interface CodeSmellAnnotation {
 	
 	/**
-	 * @return AntiPattern name.
+	 * @return code smell name.
 	 */
 	public String name();
 
 	/**
-	 * @return AntiPattern description.
+	 * @return code smell description.
 	 */
 	public String description();
 
